@@ -1,22 +1,31 @@
 package com.example.demo;
 
-import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.r2dbc.AutoConfigureDataR2dbc;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import static com.example.demo.DemoApplication.buildApp;
 import static org.hamcrest.Matchers.equalTo;
 
-@SpringBootTest
-@AutoConfigureWebTestClient
-@AutoConfigureDataR2dbc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DemoApplicationTests {
 
-    @Autowired
-    WebTestClient webTestClient;
+    private ConfigurableApplicationContext applicationContext;
+    private WebTestClient webTestClient;
+
+    @BeforeAll
+    void setUp() {
+        applicationContext = buildApp().run();
+        webTestClient = WebTestClient.bindToApplicationContext(applicationContext).build();
+    }
+
+    @AfterAll
+    void tearDown() {
+        applicationContext.close();
+    }
 
     @Test
     void shouldReturnListOfBooks() {

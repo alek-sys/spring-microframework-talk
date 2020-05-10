@@ -2,10 +2,15 @@ package com.example.demo;
 
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.r2dbc.R2dbcDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.reactive.HttpHandlerAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.reactive.ReactiveWebServerFactoryAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.reactive.error.ErrorWebFluxAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
@@ -14,14 +19,24 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 
-@SpringBootConfiguration
-@EnableAutoConfiguration
+@EnableR2dbcRepositories
 public class DemoApplication {
+
+    private final static Class[] autoConfigurationClasses = {ReactiveWebServerFactoryAutoConfiguration.class,
+            // web
+            HttpHandlerAutoConfiguration.class,
+            WebFluxAutoConfiguration.class,
+            ErrorWebFluxAutoConfiguration.class,
+
+            // data
+            R2dbcAutoConfiguration.class,
+            R2dbcDataAutoConfiguration.class};
 
     public static SpringApplication buildApp() {
         var translationService = new TranslationService();
 
         return new SpringApplicationBuilder(DemoApplication.class)
+                .sources(autoConfigurationClasses)
                 .initializers((GenericApplicationContext applicationContext) -> {
                     applicationContext.registerBean(ConnectionFactoryInitializer.class, () -> {
                         ConnectionFactory connectionFactory = applicationContext.getBean(ConnectionFactory.class);

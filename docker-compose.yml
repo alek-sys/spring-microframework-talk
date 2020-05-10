@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  web:
+    image: demo:0.0.1-SNAPSHOT
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_R2DBC_URL: r2dbc:postgresql://database/postgres
+      SPRING_R2DBC_USERNAME: postgres
+      SPRING_R2DBC_PASSWORD: postgres-pwd
+    links:
+      - database
+  database:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: postgres-pwd

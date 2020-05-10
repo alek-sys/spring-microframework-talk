@@ -1,0 +1,60 @@
+plugins {
+	id 'org.springframework.boot' version '2.4.0'
+	id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+	id 'java'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
+}
+
+dependencies {
+	annotationProcessor 'org.springframework:spring-context-indexer'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	runtimeOnly 'io.r2dbc:r2dbc-postgresql'
+	runtimeOnly 'org.postgresql:postgresql'
+
+	if (project.hasProperty("native")) {
+		implementation 'org.springframework.experimental:spring-graalvm-native:0.8.3'
+	}
+
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testImplementation 'io.projectreactor:reactor-test'
+	testRuntimeOnly 'io.r2dbc:r2dbc-h2'
+}
+
+if (project.hasProperty("native")) {
+	bootBuildImage {
+		imageName = "${project.name}:${project.version}-NATIVE"
+		builder = "paketobuildpacks/builder:tiny"
+		environment = [
+				"BP_BOOT_NATIVE_IMAGE"                : "1",
+				"BP_BOOT_NATIVE_IMAGE_BUILD_ARGUMENTS": "-Dspring.spel.ignore=true -H:IncludeResources=.*.sql"
+		]
+	}
+}
+
+test {
+	useJUnitPlatform()
+}

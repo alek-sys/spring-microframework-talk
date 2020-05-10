@@ -6,6 +6,10 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.ServerResponse;
+
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.r2dbc.connection.init.ConnectionFactoryInitializer;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
@@ -29,12 +33,22 @@ public class DemoApplication {
                         return initializer;
                     });
 
-                    applicationContext.registerBean(BookController.class,
-                            () -> new BookController(applicationContext.getBean(BookRepository.class), translationService));
-                    // or applicationContext.registerBean(BookController.class) to delegate it back to Spring
+                    applicationContext.registerBean(RouterFunction.class, () -> {
+                        var repo = applicationContext.getBean(BookRepository.class);
+                        return route()
+                                .GET("/book", request -> {
+                                    var lang = request.queryParam("lang").orElse("");
+                                    var translatedBooks = repo
+                                            .findAll()
+                                            .map(book -> new Book(
+                                                    book.getId(),
+                                                    translationService.translateTitle(lang, book.getTitle())
+                                            ));
 
-                    applicationContext.registerBean(TranslationService.class,
-                            () -> translationService);
+                                    return ServerResponse.ok().body(translatedBooks, Book.class);
+                                })
+                                .build();
+                    });
                 })
                 .build();
     }

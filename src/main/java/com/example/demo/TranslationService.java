@@ -1,9 +1,5 @@
 package com.example.demo;
 
-import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
-
-@Component
 public class TranslationService {
 
 	String translateTitle(String lang, String title) {

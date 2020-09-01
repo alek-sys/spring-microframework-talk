@@ -3,3 +3,6 @@ spring:
     url: r2dbc:postgresql://localhost/postgres
     username: postgres
     password: password
+
+  main:
+    lazy-initialization: true

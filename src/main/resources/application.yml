@@ -6,3 +6,8 @@ spring:
 
   main:
     lazy-initialization: true
+
+  data:
+    r2dbc:
+      repositories:
+        enabled: false

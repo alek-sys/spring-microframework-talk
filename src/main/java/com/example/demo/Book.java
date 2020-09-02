@@ -7,15 +7,15 @@ import org.springframework.data.annotation.Id;
 public class Book {
 
 	@Id
-    private final Long id;
+    private final Integer id;
  	private final String title;
 
-	public Book(Long id, String title) {
+	public Book(Integer id, String title) {
 		this.id = id;
 		this.title = title;
 	}
 
-	public java.lang.Long getId() {
+	public Integer getId() {
 		return id;
 	}
 

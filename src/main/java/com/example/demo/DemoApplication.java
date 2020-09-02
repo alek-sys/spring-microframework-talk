@@ -10,6 +10,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
+import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
@@ -35,12 +36,14 @@ public class DemoApplication {
                     });
 
                     applicationContext.registerBean(RouterFunction.class, () -> {
-                        var repo = applicationContext.getBean(BookRepository.class);
+                        var client= applicationContext.getBean(DatabaseClient.class);
                         return route()
                                 .GET("/book", request -> {
                                     var lang = request.queryParam("lang").orElse("");
-                                    var translatedBooks = repo
-                                            .findAll()
+                                    var translatedBooks = client
+                                            .sql("select * from book")
+                                            .map(row -> new Book(row.get("id", Integer.class), row.get("title", String.class)))
+                                            .all()
                                             .map(book -> new Book(
                                                     book.getId(),
                                                     translationService.translateTitle(lang, book.getTitle())

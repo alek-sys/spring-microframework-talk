@@ -1,6 +1,9 @@
 spring:
   r2dbc:
     url: r2dbc:h2:mem:///test-db;MODE=PostgreSQL;
-
+  data:
+    r2dbc:
+      repositories:
+        enabled: false
 server:
   port: 0

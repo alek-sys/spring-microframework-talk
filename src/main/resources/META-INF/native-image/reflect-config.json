@@ -1,0 +1,8 @@
+[
+  {
+    "name": "com.example.demo.Book",
+    "allPublicConstructors" : true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  }
+]
